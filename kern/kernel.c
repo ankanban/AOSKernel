@@ -26,6 +26,12 @@
 #include <x86/seg.h>                /* install_user_segs() */
 #include <x86/interrupt_defines.h>  /* interrupt_setup() */
 #include <x86/asm.h>                /* enable_interrupts() */
+#include <interrupt_wrappers.h>
+#include <kernel_timer.h>
+#include <console.h>
+#include <keyboard.h>
+#include <timer.h>
+#include <handler_install.h>
 
 /*
  * state for kernel memory allocation.
@@ -56,6 +62,21 @@ int kernel_main(mbinfo_t *mbinfo, int argc, char **argv, char **envp)
     /* Everything below 1M  */
     lmm_remove_free( &malloc_lmm, (void*)0, 0x100000 );
 
+
+
+
+    /*
+     * Set up Page tables and segmentation
+     * for the kernel.
+     *
+     */
+
+
+    /*
+     * Install the timer handler function.
+     */
+    handler_install(kernel_tick);
+
     /*
      * initialize the PIC so that IRQs and
      * exception handlers don't overlap in the IDT.
@@ -69,6 +90,8 @@ int kernel_main(mbinfo_t *mbinfo, int argc, char **argv, char **envp)
      */
 
     lprintf( "Hello from a brand new kernel!" );
+
+    enable_interrupts();
 
     while (1) {
         continue;

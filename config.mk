@@ -115,4 +115,6 @@ SYSCALL_OBJS = syscall.o
 #
 # Kernel object files you provide in from kern/
 #
-KERNEL_OBJS = fake_console.o kernel.o loader.o malloc_wrappers.o
+KERNEL_OBJS = handler_install.o console.o keyboard.o timer.o \
+		keyboard_wrapper.o timer_wrapper.o \
+		kernel_timer.o kernel.o loader.o malloc_wrappers.o
