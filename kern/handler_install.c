@@ -63,12 +63,14 @@ handler_install(void (*tickback)(unsigned int))
   //  lprintf("Timer handler :%p\n", timer_wrapper);
   //lprintf("Keyboard handler :%p\n", keyboard_wrapper);
 
+  exceptions_init();
+
   timer_init(tickback);
  
   keyboard_init();
 
   console_init();
-  
+ 
   //test_console();
 
   return 0;

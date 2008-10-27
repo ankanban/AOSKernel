@@ -171,4 +171,7 @@ void draw_char(int row, int col, int ch, int color);
  */
 char get_char(int row, int col);
 
+int
+sys_gettid(void);
+
 #endif /* _KERNEL_H_ */

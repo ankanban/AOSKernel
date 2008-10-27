@@ -43,6 +43,14 @@ extern lmm_t malloc_lmm;
  */
 extern struct multiboot_info boot_info;
 
+task_t idle_task;
+
+int
+sys_gettid(void)
+{
+  return idle_task.idle_thread.id;
+}
+
 /** @brief Kernel entrypoint.
  *  
  *  This is the entrypoint for the kernel.
@@ -61,15 +69,6 @@ int kernel_main(mbinfo_t *mbinfo, int argc, char **argv, char **envp)
     
     /* Everything below 1M  */
     lmm_remove_free( &malloc_lmm, (void*)0, 0x100000 );
-
-
-
-
-    /*
-     * Set up Page tables and segmentation
-     * for the kernel.
-     *
-     */
 
 
     /*
@@ -93,9 +92,13 @@ int kernel_main(mbinfo_t *mbinfo, int argc, char **argv, char **envp)
 
     enable_interrupts();
 
-    while (1) {
-        continue;
-    }
+    //while (1) {
+    //    continue;
+    //}
+
+    idle_task.id = 1;
+    idle_task.thread.id = 1;
+    task_switch(&idle_task);
 
     return 0;
 }
