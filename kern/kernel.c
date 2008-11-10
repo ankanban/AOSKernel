@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <simics.h>                 /* lprintf() */
 #include <malloc.h>
+#include <stddef.h>
 
 /* multiboot header file */
 #include <multiboot.h>              /* boot_info */
@@ -32,6 +33,12 @@
 #include <keyboard.h>
 #include <timer.h>
 #include <handler_install.h>
+#include <task.h>
+#include <thread.h>
+#include <vmm.h>
+#include <syscall_int.h>
+#include <kernel_asm.h>
+#include <sched.h>
 
 /*
  * state for kernel memory allocation.
@@ -44,11 +51,33 @@ extern lmm_t malloc_lmm;
 extern struct multiboot_info boot_info;
 
 task_t idle_task;
+int default_stack_size = (16 << PAGE_SHIFT);
+char * idle_task_path = "ck1";
 
 int
 sys_gettid(void)
 {
-  return idle_task.idle_thread.id;
+  int thread_id = 0;
+  thread_t * current = NULL;
+
+  //MAGIC_BREAK;
+  //set_kernel_ds();
+  current = sched_get_current_thread();
+  thread_id = current->id;
+  //set_user_ds();
+
+  return thread_id;
+}
+
+
+void gettid_wrapper(void);
+
+void
+syscall_init()
+{
+  lprintf("Setting up system call vectors");
+  set_syscall_entry(GETTID_INT, gettid_wrapper);
+  
 }
 
 /** @brief Kernel entrypoint.
@@ -75,6 +104,7 @@ int kernel_main(mbinfo_t *mbinfo, int argc, char **argv, char **envp)
      * Install the timer handler function.
      */
     handler_install(kernel_tick);
+    syscall_init();
 
     /*
      * initialize the PIC so that IRQs and
@@ -92,13 +122,29 @@ int kernel_main(mbinfo_t *mbinfo, int argc, char **argv, char **envp)
 
     enable_interrupts();
 
+    //MAGIC_BREAK;
+
+    vmm_kernel_init();
+
     //while (1) {
     //    continue;
     //}
 
-    idle_task.id = 1;
-    idle_task.thread.id = 1;
-    task_switch(&idle_task);
+    task_create(&idle_task);
+
+    thread_create(&idle_task.thread,
+		  &idle_task,
+		  default_stack_size,
+		  default_stack_size);
+    
+    /* Load the task */
+    task_load(&idle_task,
+	      &idle_task.thread,
+	      idle_task_path);
+
+    sched_set_current_thread(&idle_task.thread);
+
+    sched_yield();
 
     return 0;
 }

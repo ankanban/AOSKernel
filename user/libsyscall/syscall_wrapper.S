@@ -129,14 +129,19 @@ syscall_wrapper:
 	// Get the number of arguments	
 	movl $ARG_NUM_OFFSET, %ebx 				
 	movl (%ebp, %ebx, INTEGER_SIZE), %edx
-	
-	movl $ARG_PKT_OFFSET, %ebx
-	// Check if single or multiple arguments
 
+	// The argument, put it into ebx now,
+	// so we can handle for each case
+	// (0, 1, > 1 arguments)
+	movl $ARG_PKT_OFFSET, %ebx
+	
+	// Check if zero, single or multiple arguments
 	cmpl $0x1, %edx
 	jz syscall_1arg
+	
 	cmpl $0x0, %edx
 	jz syscall_0arg
+	
 	// Multiple arguments, get arg pkt offset into eax
 	
  	// move pkt pointer into %esi
@@ -165,7 +170,7 @@ do_syscall:
 	mull %ecx
 	addl %ebx, %eax
 	// Jump to address %ebx + %eax, i.e. table address
-	ljmp *(%eax)
+	jmp %eax
 	
 
 /**

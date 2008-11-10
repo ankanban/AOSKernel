@@ -52,7 +52,7 @@ UPDATE_METHOD = web
 #
 # The idle process is a really good thing to keep here.
 #
-410REQPROGS = idle init shell
+410REQPROGS = idle init shell ck1
 
 ###########################################################################
 # Mandatory programs whose source is provided by you
@@ -85,7 +85,7 @@ STUDENTREQPROGS =
 # A list of the test programs you want compiled in from the user/progs
 # directory
 #
-STUDENTTESTS =
+STUDENTTESTS = idle_test
 
 ###########################################################################
 # Object files for your thread library
@@ -103,7 +103,9 @@ THREAD_OBJS = malloc.o
 ###########################################################################
 # Object files for your syscall wrappers
 ###########################################################################
-SYSCALL_OBJS = syscall.o
+SYSCALL_OBJS = syscall_wrapper.o gettid.o set_status.o vanish.o \
+		fork.o exec.o wait.o print.o readline.o get_cursor_pos.o \
+		set_cursor_pos.o new_pages.o ls.o
 
 ###########################################################################
 # Parts of your kernel
@@ -112,9 +114,14 @@ SYSCALL_OBJS = syscall.o
 # Kernel object files you want included from 410kern/
 #
 410KERNEL_OBJS = load_helper.o
+
 #
 # Kernel object files you provide in from kern/
 #
 KERNEL_OBJS = handler_install.o console.o keyboard.o timer.o \
 		keyboard_wrapper.o timer_wrapper.o \
-		kernel_timer.o kernel.o loader.o malloc_wrappers.o
+		kernel_exceptions.o exception_wrappers.o \
+		task.o task_switch_wrapper.o kernel_asm.o \
+		vmm_page.o vmm.o vm_area.o \
+		kernel_timer.o gettid_wrapper.o \
+		sched.o kernel.o loader.o malloc_wrappers.o

@@ -1,6 +1,7 @@
 #ifndef _KERNEL_H_
 #define _KERNEL_H_
 
+#include <kernel_asm.h>
 
 /*********************************************************************/
 /*                                                                   */
@@ -173,5 +174,11 @@ char get_char(int row, int col);
 
 int
 sys_gettid(void);
+
+/*
+ * Generate all protos for segment selector setup
+ */
+DEFINE_ALL_SET_SEG_PROTO;
+
 
 #endif /* _KERNEL_H_ */

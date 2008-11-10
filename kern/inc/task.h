@@ -1,7 +1,9 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
+#include <vm_area.h>
 #include <thread.h>
+#include <stdint.h>
 
 /* The Process Control Block (PCB) */
 typedef struct task {
@@ -9,18 +11,17 @@ typedef struct task {
   int id;
 
   void * page_dir;
-  unsigned int data_segment;
 
   /* List of allocated VM regions 
    * XXX Currently hard coded
    */
-  vm_area_t vm_kernel;
-  vm_area_t vm_code;
-  vm_area_t vm_data;
+  vm_area_t vma_kernel;
+  vm_area_t vma_code;
+  vm_area_t vma_data;
 
   /* Segment registers */
-  unsigned int code_segment;
-  unsigned int data_segment;
+  unsigned int cs;
+  unsigned int ds;
 
   /* List of threads belonging to this task
    * XXX currently only one thread
@@ -30,12 +31,18 @@ typedef struct task {
 } task_t;
 
 void
-task_switch(task_t * task);
+task_create(task_t * task);
 
 void
-do_task_switch(void * task_addr,
-	       uint32_t eflags,
+task_load(task_t * task,
+	  thread_t * thread,
+	  char * task_path);
+void
+do_task_switch(
+	       uint32_t eip,
 	       uint32_t cs,
+	       uint32_t eflags,
+	       uint32_t esp,
 	       uint32_t ss,
 	       uint32_t ds);
 

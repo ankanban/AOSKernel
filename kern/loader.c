@@ -14,6 +14,7 @@
 /* --- Includes --- */
 #include <string.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <malloc.h>
 #include <exec2obj.h>
 #include <loader.h>
@@ -35,12 +36,37 @@
  */
 int getbytes( const char *filename, int offset, int size, char *buf )
 {
+  int i = 0;
+  int found = 0;
+  int bytes_to_read = 0;
+  exec2obj_userapp_TOC_entry const * toc_entry = NULL;
+  for (i = 0; i < exec2obj_userapp_count; i++) {
+      toc_entry = &exec2obj_userapp_TOC[i];
+    if (!strcmp(filename, toc_entry->execname)) {
+      found  = 1;
+      break;
+    }
+  }
 
-    /*
-     * You fill in this function.
-     */
+  if (!found) {
+    return -1;
+  }
+  
+  if (offset >= toc_entry->execlen) {
+    return 0;
+  }
 
-  return -1;
+  bytes_to_read = size;
+
+  if (bytes_to_read + offset > toc_entry->execlen) {
+    bytes_to_read = toc_entry->execlen - offset;
+  }
+  
+  memcpy(buf, 
+	 toc_entry->execbytes + offset, 
+	 bytes_to_read);
+
+  return bytes_to_read;
 }
 
 /*@}*/

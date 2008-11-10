@@ -1,33 +1,28 @@
 #ifndef __VMM_H__
 #define __VMM_H__
 
+/* x86 specific includes */
+#include <x86/seg.h>                /* install_user_segs() */
+#include <x86/interrupt_defines.h>  /* interrupt_setup() */
+#include <x86/asm.h>                /* enable_interrupts() */
+#include <x86/page.h>
+#include <vmm_page.h>
 #include <vm_area.h>
 #include <task.h>
 
-typedef struct pde {
-  unsigned int value;
-} pde_t __attribute__((packed));
 
-typedef struct pte {
-  unsigned int value;
-} pte_t __attribute__((packed));
-
-
-/* Sizes covered by a page struct */
-#define PGTAB_SIZE (PAGE_SIZE >> 2)
-#define PGTAB_REGION_SIZE (PGTAB_SIZE << PAGE_SIZE)
-
-void *
-vmm_ppf_alloc(void);
+#define THREAD_STACK_MARGIN 63
 
 void
-vmm_ppf_free(void *);
+vmm_kernel_init();
 
 void
-vmm_init(task_t * task);
+vmm_task_init(task_t * task);
 
 void
-vmm_create_stack(thread_t * thread);
+vmm_thread_init(thread_t * thread,
+		unsigned int user_stack_size,
+		unsigned int kernel_stack_size);
 
 
 #endif /* __VMM_H__ */
